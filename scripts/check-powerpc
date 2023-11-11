@@ -1,0 +1,47 @@
+#!/bin/sh
+
+if [ -z "$PROJECT" ]
+then
+    PROJECT="$HOME/repos/sourcehut/wareification/lngrd"
+fi
+
+CC='powerpc-linux-gnu-gcc'
+
+if [ ! `command -v $CC` ]
+then
+    if [ -z "$NO_COLOR" ]
+    then
+        printf '\033[7;31m FAIL \033[0m\n' 1>&2
+        printf '\033[1mReason:\033[0m\n' 1>&2
+    else
+        printf '[FAIL]\n' 1>&2
+        printf 'Reason:\n' 1>&2
+    fi
+
+    printf "$CC not available\n"
+
+    exit 1
+fi
+
+cd "$PROJECT"
+make -s clean
+make -s CC=$CC CFLAGS='-ansi -pedantic -Wall -Werror -Wextra' LDFLAGS='-static'
+
+if [ $? -ne 0 ]
+then
+    exit 1
+fi
+
+abort()
+{
+    cd "$PROJECT"
+    make -s clean
+    exit 1
+}
+
+trap abort INT QUIT ABRT
+
+make -s check
+
+cd "$PROJECT"
+make -s clean

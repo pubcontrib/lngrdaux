@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ -z "$PROJECT" ]
+then
+    PROJECT="$HOME/repos/sourcehut/wareification/lngrd"
+fi
+
+cd "$PROJECT"
+make -s clean
+make -s CFLAGS='-ansi -pedantic -Wall -Werror -Wextra -O1 -g3 -fsanitize=address -fsanitize=undefined' LDFLAGS='-fsanitize=address -fsanitize=undefined'
+
+if [ $? -ne 0 ]
+then
+    exit 1
+fi
+
+abort()
+{
+    cd "$PROJECT"
+    make -s clean
+    exit 1
+}
+
+trap abort INT QUIT ABRT
+
+make -s check
+
+cd "$PROJECT"
+make -s clean
