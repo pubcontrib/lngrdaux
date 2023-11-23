@@ -42,6 +42,7 @@ trap abort INT QUIT ABRT
 
 cd test
 valgrind --leak-check=full --error-exitcode=64 -q --log-file=valgrind-log.txt ../bin/lngrd check
+status=$?
 
 if [ -f valgrind.log.txt -a -s valgrind-log.txt ]
 then
@@ -65,3 +66,4 @@ rm valgrind-log.txt
 
 cd "$PROJECT"
 make -s clean
+exit $status

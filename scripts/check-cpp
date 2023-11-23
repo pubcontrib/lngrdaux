@@ -16,14 +16,10 @@ fi
 
 abort()
 {
-    cd "$PROJECT"
     make -s clean
     exit 1
 }
 
 trap abort INT QUIT ABRT
 
-make -s check
-
-cd "$PROJECT"
-make -s clean
+make -s check clean
