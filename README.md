@@ -9,10 +9,10 @@ and usage.
 
 Runs all check scripts.
 
-### check-c17
+### check-cxx
 
-Compiles lngrd using the c17 standard then runs the test suite looking for
-source incompatibility.
+Compiles lngrd for each C standard then runs the test suite looking for source
+incompatibility.
 
 ### check-cpp
 
