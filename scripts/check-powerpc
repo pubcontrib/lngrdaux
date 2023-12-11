@@ -18,7 +18,7 @@ then
         printf 'Reason:\n' 1>&2
     fi
 
-    printf "$CC not available\n"
+    printf "$CC not available\n" 1>&2
 
     exit 1
 fi

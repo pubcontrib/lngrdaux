@@ -16,7 +16,7 @@ then
         printf 'Reason:\n' 1>&2
     fi
 
-    printf "valgrind not available\n"
+    printf "valgrind not available\n" 1>&2
 
     exit 1
 fi
