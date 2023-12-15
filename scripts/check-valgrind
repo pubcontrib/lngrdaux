@@ -44,7 +44,7 @@ cd test
 valgrind --leak-check=full --error-exitcode=64 -q --log-file=valgrind-log.txt ../bin/lngrd check
 status=$?
 
-if [ -f valgrind.log.txt -a -s valgrind-log.txt ]
+if [ -f valgrind-log.txt -a -s valgrind-log.txt ]
 then
     if [ -z "$NO_COLOR" ]
     then
