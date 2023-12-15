@@ -53,7 +53,7 @@ then
         printf "memory test failed\n" 1>&2
         printf '\033[1mLog:\033[0m\n' 1>&2
     else
-        printf '[FAIL]\n' 1>&2
+        printf '[LEAK]\n' 1>&2
         printf 'Reason:\n' 1>&2
         printf "memory test failed\n" 1>&2
         printf 'Log:\n' 1>&2
