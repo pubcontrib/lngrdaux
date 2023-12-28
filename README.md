@@ -32,3 +32,7 @@ Compiles lngrd using valgrind then runs the test suite looking for memory bugs.
 
 Compiles lngrd using powerpc-linux-gnu-gcc then runs the test suite using
 qemu-user-binfmt looking for memory bugs.
+
+### generate-argument-cases
+
+Generates test cases of invalid arguments for lngrd built-ins.

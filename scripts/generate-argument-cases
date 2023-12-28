@@ -1,0 +1,267 @@
+#!/usr/bin/env node
+
+const formats = [
+  {
+    "name": "add",
+    "signatures": [
+      ["number", "number"]
+    ]
+  },
+  {
+    "name": "subtract",
+    "signatures": [
+      ["number", "number"]
+    ]
+  },
+  {
+    "name": "multiply",
+    "signatures": [
+      ["number", "number"]
+    ]
+  },
+  {
+    "name": "divide",
+    "signatures": [
+      ["number", "number"]
+    ]
+  },
+  {
+    "name": "modulo",
+    "signatures": [
+      ["number", "number"]
+    ]
+  },
+  {
+    "name": "increment",
+    "signatures": [
+      ["number"]
+    ]
+  },
+  {
+    "name": "decrement",
+    "signatures": [
+      ["number"]
+    ]
+  },
+  {
+    "name": "and",
+    "signatures": [
+      ["number|string|list|function", "number|string|list|function"]
+    ]
+  },
+  {
+    "name": "or",
+    "signatures": [
+      ["number|string|list|function", "number|string|list|function"]
+    ]
+  },
+  {
+    "name": "not",
+    "signatures": [
+      ["number|string|list|function"]
+    ]
+  },
+  {
+    "name": "precedes",
+    "signatures": [
+      ["number|string|list|function", "number|string|list|function"]
+    ]
+  },
+  {
+    "name": "succeeds",
+    "signatures": [
+      ["number|string|list|function", "number|string|list|function"]
+    ]
+  },
+  {
+    "name": "equals",
+    "signatures": [
+      ["number|string|list|function", "number|string|list|function"]
+    ]
+  },
+  {
+    "name": "get",
+    "signatures": [
+      ["string|list", "number"]
+    ]
+  },
+  {
+    "name": "set",
+    "signatures": [
+      ["string|list", "number", "number|string|list|function"]
+    ]
+  },
+  {
+    "name": "unset",
+    "signatures": [
+      ["string|list", "number"]
+    ]
+  },
+  {
+    "name": "measure",
+    "signatures": [
+      ["string|list"]
+    ]
+  },
+  {
+    "name": "slice",
+    "signatures": [
+      ["string", "number", "number"],
+      ["list", "number", "number"]
+    ]
+  },
+  {
+    "name": "merge",
+    "signatures": [
+      ["string", "string"],
+      ["list", "list"]
+    ]
+  },
+  {
+    "name": "sort",
+    "signatures": [
+      ["list"],
+    ]
+  },
+  {
+    "name": "read",
+    "signatures": [
+      ["number|string", "string"]
+    ]
+  },
+  {
+    "name": "write",
+    "signatures": [
+      ["number|string", "string"]
+    ]
+  },
+  {
+    "name": "delete",
+    "signatures": [
+      ["number|string"]
+    ]
+  },
+  {
+    "name": "query",
+    "signatures": [
+      ["string"]
+    ]
+  },
+  {
+    "name": "exit",
+    "signatures": [
+      ["number"]
+    ]
+  },
+  {
+    "name": "serialize",
+    "signatures": [
+      ["number|string|list|function"]
+    ]
+  },
+  {
+    "name": "deserialize",
+    "signatures": [
+      ["string"]
+    ]
+  },
+  {
+    "name": "classify",
+    "signatures": [
+      ["number|string|list|function"]
+    ]
+  },
+  {
+    "name": "evaluate",
+    "signatures": [
+      ["string"]
+    ]
+  }
+];
+const values = {
+  "number": "0",
+  "string": '""',
+  "list": "[]",
+  "function": "<>"
+};
+
+for (const format of formats) {
+  const name = format.name;
+
+  if (format.signatures.length === 0) {
+    throw `${name} format found without signatures`;
+  }
+
+  const expectedLength = format.signatures[0].length;
+
+  for (const signature of format.signatures) {
+    if (signature.length !== expectedLength) {
+      throw `${name} format found with an oddly sized signature`;
+    }
+  }
+}
+
+for (const format of formats) {
+  const name = format.name;
+  const signatures = format.signatures;
+  const expectedLength = signatures[0].length;
+
+  console.log(toTestSource(name, [], '"absent argument"'));
+
+  for (const attempt of enumeratePossibleSignatures(expectedLength)) {
+    let supportedSoFar = false;
+
+    for (let signature of signatures) {
+      signature = signature.map(argument => argument.split('|'));
+
+      if (isSupportedSoFar(attempt, signature)) {
+        supportedSoFar = true;
+        break;
+      }
+    }
+
+    if (supportedSoFar) {
+      const actualLength = attempt.length;
+
+      if (actualLength !== expectedLength) {
+        console.log(toTestSource(name, attempt, '"absent argument"'));
+      }
+    } else {
+      console.log(toTestSource(name, attempt, '"alien argument"'));
+    }
+  }
+}
+
+function* enumeratePossibleSignatures(length) {
+  if (length > 0) {
+    for (const type of Object.keys(values)) {
+      yield [type];
+
+      for (const path of enumeratePossibleSignatures(length - 1)) {
+        yield [type, ...path];
+      }
+    }
+  }
+}
+
+function isSupportedSoFar(attempt, signature) {
+  for (let i = 0; i < attempt.length; i++) {
+    const left = attempt[i];
+    const right = signature[i];
+
+    if (!right.includes(left)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function toTestSource(name, attempt, issue) {
+  if (attempt.length > 0) {
+    const body = attempt.map(type => values[type]).join(" ");
+    return `(@throws <(@${name} ${body})> ${issue})`;
+  } else {
+    return `(@throws <(@${name})> ${issue})`;
+  }
+}
